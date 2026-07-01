@@ -1,0 +1,41 @@
+# Environment / secrets
+.env
+*.env
+!.env.example
+
+# Maven
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# IDE - IntelliJ
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# IDE - Eclipse
+.classpath
+.project
+.settings/
+bin/
+
+# IDE - NetBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+# IDE - VS Code (keep shared settings)
+.vscode/*
+!.vscode/settings.json
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
