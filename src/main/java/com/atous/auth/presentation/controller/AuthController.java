@@ -24,15 +24,14 @@ public class AuthController {
     private final AuthPresentationMapper mapper;
 
     public AuthController(
-        RegisterUserUseCase registerUser, 
-        AuthenticateUserUseCase authenticate, 
-        RefreshTokenUseCase refresh, 
-        LogoutUseCase logout, 
-        ValidateTokenUseCase validate, 
-        ForgotPasswordUseCase forgot, 
-        ResetPasswordUseCase reset, 
-        AuthPresentationMapper mapper
-    ){
+            RegisterUserUseCase registerUser,
+            AuthenticateUserUseCase authenticate,
+            RefreshTokenUseCase refresh,
+            LogoutUseCase logout,
+            ValidateTokenUseCase validate,
+            ForgotPasswordUseCase forgot,
+            ResetPasswordUseCase reset,
+            AuthPresentationMapper mapper) {
         this.registerUser = registerUser;
         this.authenticate = authenticate;
         this.refresh = refresh;
@@ -52,33 +51,44 @@ public class AuthController {
 
     @PostMapping("/login")
     public AuthResponse login(@Valid @RequestBody LoginRequest request, HttpServletRequest servlet) {
-        return mapper.toResponse(authenticate.execute(mapper.toCommand(request, ip(servlet), servlet.getHeader(HttpHeaders.USER_AGENT))));
+        return mapper.toResponse(authenticate
+                .execute(mapper.toCommand(request, ip(servlet), servlet.getHeader(HttpHeaders.USER_AGENT))));
     }
 
     @PostMapping("/refresh")
     public AuthResponse refresh(@Valid @RequestBody RefreshTokenRequest request, HttpServletRequest servlet) {
-        return mapper.toResponse(refresh.execute(mapper.toCommand(request, ip(servlet), servlet.getHeader(HttpHeaders.USER_AGENT))));
+        return mapper.toResponse(
+                refresh.execute(mapper.toCommand(request, ip(servlet), servlet.getHeader(HttpHeaders.USER_AGENT))));
     }
 
     @PostMapping("/logout")
-    public LogoutResponse logout(@Valid @RequestBody LogoutRequest request, @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization, HttpServletRequest servlet) {
-        return mapper.toResponse(logout.execute(mapper.toCommand(request, authorization, ip(servlet), servlet.getHeader(HttpHeaders.USER_AGENT))));
+    public LogoutResponse logout(@Valid @RequestBody LogoutRequest request,
+            @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization,
+            HttpServletRequest servlet) {
+        return mapper.toResponse(logout.execute(
+                mapper.toCommand(request, authorization, ip(servlet), servlet.getHeader(HttpHeaders.USER_AGENT))));
     }
 
     @PostMapping("/validate")
     public TokenValidationResponse validate(@Valid @RequestBody ValidateTokenRequest request) {
         var r = validate.execute(new ValidateTokenCommand(request.accessToken()));
-        return new TokenValidationResponse(r.valid(), r.userId(), r.email(), r.roles(), r.permissions(), r.issuedAt(), r.expiresAt());
+        return new TokenValidationResponse(r.valid(), r.userId(), r.email(), r.roles(), r.permissions(), r.issuedAt(),
+                r.expiresAt());
     }
 
     @PostMapping("/forgot-password")
     public MessageResponse forgot(@Valid @RequestBody ForgotPasswordRequest request, HttpServletRequest servlet) {
-        return MessageResponse.of(forgot.execute(new ForgotPasswordCommand(request.email(), ip(servlet), servlet.getHeader(HttpHeaders.USER_AGENT))).message());
+        return MessageResponse.of(forgot.execute(
+                new ForgotPasswordCommand(request.email(), ip(servlet), servlet.getHeader(HttpHeaders.USER_AGENT)))
+                .message());
     }
 
     @PostMapping("/reset-password")
     public MessageResponse reset(@Valid @RequestBody ResetPasswordRequest request, HttpServletRequest servlet) {
-        return MessageResponse.of(reset.execute(new ResetPasswordCommand(request.resetToken(), request.newPassword(), request.passwordConfirmation(), ip(servlet), servlet.getHeader(HttpHeaders.USER_AGENT))).message());
+        return MessageResponse.of(reset
+                .execute(new ResetPasswordCommand(request.resetToken(), request.newPassword(),
+                        request.passwordConfirmation(), ip(servlet), servlet.getHeader(HttpHeaders.USER_AGENT)))
+                .message());
     }
 
     private String ip(HttpServletRequest r) {

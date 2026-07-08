@@ -1,3 +1,13 @@
 package com.atous.auth.application.dto.view;
+import java.util.Set;
+import java.util.UUID;
 
-public record UserSummaryView(java.util.UUID id, String name, String email, boolean enabled, boolean emailVerified, boolean mfaEnabled, java.util.Set<String> roles, java.util.Set<String> permissions) {}
+public record UserSummaryView(
+    UUID id, 
+    String name, 
+    String email, 
+    boolean enabled, 
+    boolean emailVerified, 
+    boolean mfaEnabled, 
+    Set<String> roles, 
+    Set<String> permissions) {}

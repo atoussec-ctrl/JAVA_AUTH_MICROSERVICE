@@ -1,3 +1,13 @@
 package com.atous.auth.application.dto.result;
+import java.time.Instant;
 
-public record AuthResult(String accessToken, String refreshToken, String tokenType, long expiresIn, java.time.Instant issuedAt, java.time.Instant expiresAt, com.atous.auth.application.dto.view.UserSummaryView user) {}
+import com.atous.auth.application.dto.view.UserSummaryView;
+public record AuthResult(
+        String accessToken,
+        String refreshToken, 
+        String tokenType, 
+        long expiresIn,
+        Instant issuedAt, 
+        Instant expiresAt,
+       UserSummaryView user
+    ) {}

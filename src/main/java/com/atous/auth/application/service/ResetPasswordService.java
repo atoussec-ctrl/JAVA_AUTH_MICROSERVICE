@@ -1,5 +1,44 @@
 package com.atous.auth.application.service;
 
-import com.atous.auth.application.dto.command.ResetPasswordCommand; import com.atous.auth.application.dto.result.PasswordOperationResult; import com.atous.auth.application.port.in.ResetPasswordUseCase; import com.atous.auth.application.port.out.*; import com.atous.auth.domain.exception.*; import com.atous.auth.domain.service.PasswordPolicyService;
+import com.atous.auth.application.dto.command.ResetPasswordCommand;
+import com.atous.auth.application.dto.result.PasswordOperationResult;
+import com.atous.auth.application.port.in.ResetPasswordUseCase;
+import com.atous.auth.application.port.out.*;
+import com.atous.auth.domain.exception.*;
+import com.atous.auth.domain.service.PasswordPolicyService;
 
-public final class ResetPasswordService implements ResetPasswordUseCase { private final PasswordResetTokenRepositoryPort tokens; private final UserRepositoryPort users; private final RefreshTokenRepositoryPort refresh; private final PasswordHasherPort hasher; private final TokenHashingPort hash; private final PasswordPolicyService policy; private final ClockProviderPort clock; public ResetPasswordService(PasswordResetTokenRepositoryPort tokens, UserRepositoryPort users, RefreshTokenRepositoryPort refresh, PasswordHasherPort hasher, TokenHashingPort hash, PasswordPolicyService policy, ClockProviderPort clock){this.tokens=tokens;this.users=users;this.refresh=refresh;this.hasher=hasher;this.hash=hash;this.policy=policy;this.clock=clock;} public PasswordOperationResult execute(ResetPasswordCommand c){policy.validate(c.newPassword(),c.passwordConfirmation()); var h=hash.hash(c.resetToken()); var token=tokens.findByTokenHash(h).orElseThrow(InvalidCredentialsException::new); var now=clock.now(); if(!token.isActive(now)) throw new TokenExpiredException("Password reset token expired or used"); var u=users.findById(token.userId()).orElseThrow(InvalidCredentialsException::new); users.save(u.withPasswordHash(hasher.hash(c.newPassword()),now)); tokens.markUsed(h); refresh.revokeAllByUserId(u.id()); return new PasswordOperationResult(true,"Password reset completed",now);} }
+public final class ResetPasswordService implements ResetPasswordUseCase {
+    private final PasswordResetTokenRepositoryPort tokens;
+    private final UserRepositoryPort users;
+    private final RefreshTokenRepositoryPort refresh;
+    private final PasswordHasherPort hasher;
+    private final TokenHashingPort hash;
+    private final PasswordPolicyService policy;
+    private final ClockProviderPort clock;
+
+    public ResetPasswordService(PasswordResetTokenRepositoryPort tokens, UserRepositoryPort users,
+            RefreshTokenRepositoryPort refresh, PasswordHasherPort hasher, TokenHashingPort hash,
+            PasswordPolicyService policy, ClockProviderPort clock) {
+        this.tokens = tokens;
+        this.users = users;
+        this.refresh = refresh;
+        this.hasher = hasher;
+        this.hash = hash;
+        this.policy = policy;
+        this.clock = clock;
+    }
+
+    public PasswordOperationResult execute(ResetPasswordCommand c) {
+        policy.validate(c.newPassword(), c.passwordConfirmation());
+        var h = hash.hash(c.resetToken());
+        var token = tokens.findByTokenHash(h).orElseThrow(InvalidCredentialsException::new);
+        var now = clock.now();
+        if (!token.isActive(now))
+            throw new TokenExpiredException("Password reset token expired or used");
+        var u = users.findById(token.userId()).orElseThrow(InvalidCredentialsException::new);
+        users.save(u.withPasswordHash(hasher.hash(c.newPassword()), now));
+        tokens.markUsed(h);
+        refresh.revokeAllByUserId(u.id());
+        return new PasswordOperationResult(true, "Password reset completed", now);
+    }
+}

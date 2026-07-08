@@ -11,9 +11,28 @@ import java.util.Optional;
 
 @Repository
 public class JpaPasswordResetTokenRepositoryAdapter implements PasswordResetTokenRepositoryPort {
-    private final SpringDataPasswordResetTokenRepository repo; private final PasswordResetTokenPersistenceMapper mapper;
-    public JpaPasswordResetTokenRepositoryAdapter(SpringDataPasswordResetTokenRepository repo, PasswordResetTokenPersistenceMapper mapper){this.repo=repo;this.mapper=mapper;}
-    public PasswordResetToken save(PasswordResetToken t){return mapper.toDomain(repo.save(mapper.toEntity(t)));}
-    public Optional<PasswordResetToken> findByTokenHash(TokenHash h){return repo.findByTokenHash(h.value()).map(mapper::toDomain);}
-    @Transactional public void markUsed(TokenHash h){repo.findByTokenHash(h.value()).ifPresent(e->{e.setUsed(true); repo.save(e);});}
+    private final SpringDataPasswordResetTokenRepository repo;
+    private final PasswordResetTokenPersistenceMapper mapper;
+
+    public JpaPasswordResetTokenRepositoryAdapter(SpringDataPasswordResetTokenRepository repo,
+            PasswordResetTokenPersistenceMapper mapper) {
+        this.repo = repo;
+        this.mapper = mapper;
+    }
+
+    public PasswordResetToken save(PasswordResetToken t) {
+        return mapper.toDomain(repo.save(mapper.toEntity(t)));
+    }
+
+    public Optional<PasswordResetToken> findByTokenHash(TokenHash h) {
+        return repo.findByTokenHash(h.value()).map(mapper::toDomain);
+    }
+
+    @Transactional
+    public void markUsed(TokenHash h) {
+        repo.findByTokenHash(h.value()).ifPresent(e -> {
+            e.setUsed(true);
+            repo.save(e);
+        });
+    }
 }
