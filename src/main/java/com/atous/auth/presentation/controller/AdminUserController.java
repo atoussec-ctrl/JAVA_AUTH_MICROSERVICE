@@ -30,7 +30,7 @@ public class AdminUserController {
         this.mapper = mapper;
     }
 
-    @GetMapping("/users")
+    @GetMapping
     public PageResponse<UserResponse> searchUsers(@Valid SearchUsersRequest r) {
         return mapper.toPageResponse(
                 search.execute(new SearchUsersQuery(r.search(), r.enabled(), r.normalizedPage(), r.normalizedSize())));

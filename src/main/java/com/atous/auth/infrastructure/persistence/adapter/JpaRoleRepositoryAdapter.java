@@ -1,10 +1,12 @@
 package com.atous.auth.infrastructure.persistence.adapter;
 
 import com.atous.auth.application.port.out.RoleRepositoryPort;
+import com.atous.auth.domain.exception.RoleInUseException;
 import com.atous.auth.domain.model.Role;
 import com.atous.auth.domain.valueobject.RoleId;
 import com.atous.auth.infrastructure.persistence.mapper.RolePersistenceMapper;
 import com.atous.auth.infrastructure.persistence.repository.SpringDataRoleRepository;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Repository;
 import java.util.*;
 
@@ -39,6 +41,10 @@ public class JpaRoleRepositoryAdapter implements RoleRepositoryPort {
     }
 
     public void deleteById(RoleId id) {
-        repo.deleteById(id.value());
+        try {
+            repo.deleteById(id.value());
+        } catch (DataIntegrityViolationException e) {
+            throw new RoleInUseException("Role is still assigned to users or has permissions attached");
+        }
     }
 }

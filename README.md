@@ -1,6 +1,6 @@
 # Auth Service
 
-Microservice de autenticação em **Java 21 + Spring Boot 4.1 + Maven**, seguindo **Clean Architecture**, **SOLID**, **Repository Pattern**, **DTOs `record`**, **Ports & Adapters**, **JWT RSA**, **refresh token rotation**, **RBAC**, **Flyway** e **PostgreSQL**.
+Microservice de autenticação em **Java 25 + Spring Boot 4.1 + Maven**, seguindo **Clean Architecture**, **SOLID**, **Repository Pattern**, **DTOs `record`**, **Ports & Adapters**, **JWT RSA**, **refresh token rotation**, **RBAC**, **Flyway** e **PostgreSQL**.
 
 ## Como executar
 
@@ -48,5 +48,5 @@ DELETE /api/v1/admin/roles/{roleId}
 
 - Substitua `JwtKeyConfig`, que gera chave RSA em runtime, por chave vinda de Vault/KMS/Secrets Manager.
 - O refresh token é persistido como SHA-256. Para produção crítica, prefira HMAC-SHA-256 com pepper em secret manager.
-- O rate limiter deste MVP é in-memory. Em múltiplas instâncias, use Redis.
-- O MFA está com adapter de desenvolvimento. Substitua por TOTP real.
+- O rate limiter deste MVP é in-memory (bloqueia após 10 falhas por e-mail). Em múltiplas instâncias, use Redis.
+- O MFA usa TOTP real (RFC 6238, compatível com Google Authenticator/Authy) com códigos de recuperação hasheados; login com MFA habilitado exige o campo `mfaCode` em `POST /auth/login`.

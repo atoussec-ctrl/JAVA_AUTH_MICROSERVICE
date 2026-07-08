@@ -18,8 +18,8 @@ public class GlobalExceptionHandler {
     public ErrorResponse tooManyAttempts(TooManyAttemptsException e,HttpServletRequest r){return ErrorResponse.of(429,"Too Many Requests",e.getMessage(),r.getRequestURI());}
     @ExceptionHandler({MfaRequiredException.class, InvalidMfaCodeException.class}) @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ErrorResponse mfa(DomainException e,HttpServletRequest r){return ErrorResponse.of(401,"Unauthorized",e.getMessage(),r.getRequestURI());}
-    @ExceptionHandler(UserAlreadyExistsException.class) @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse exists(UserAlreadyExistsException e,HttpServletRequest r){return ErrorResponse.of(409,"Conflict",e.getMessage(),r.getRequestURI());}
+    @ExceptionHandler({UserAlreadyExistsException.class, RoleInUseException.class}) @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse exists(DomainException e,HttpServletRequest r){return ErrorResponse.of(409,"Conflict",e.getMessage(),r.getRequestURI());}
     @ExceptionHandler(UserNotFoundException.class) @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse notFound(UserNotFoundException e,HttpServletRequest r){return ErrorResponse.of(404,"Not Found",e.getMessage(),r.getRequestURI());}
     @ExceptionHandler(MethodArgumentNotValidException.class) @ResponseStatus(HttpStatus.BAD_REQUEST)

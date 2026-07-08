@@ -29,8 +29,10 @@ public final class CreateRoleService implements CreateRoleUseCase {
         var name = c.name().trim().toUpperCase();
         if (roles.findByName(name).isPresent())
             throw new DomainException("Role already exists");
-        var ps = permissions.findAllByNames(c.permissions() == null ? Set.of() : c.permissions()).stream()
-                .collect(Collectors.toUnmodifiableSet());
+        var requested = c.permissions() == null ? Set.<String>of() : Set.copyOf(c.permissions());
+        var ps = permissions.findAllByNames(requested).stream().collect(Collectors.toUnmodifiableSet());
+        if (ps.size() != requested.size())
+            throw new DomainException("One or more permissions not found");
         var now = clock.now();
         return mapper.toRoleView(roles.save(new Role(RoleId.newId(), name, c.description(), ps, now, now)));
     }
