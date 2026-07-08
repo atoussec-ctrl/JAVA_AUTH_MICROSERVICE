@@ -27,9 +27,14 @@ public final class UpdateRoleService implements UpdateRoleUseCase {
 
     public RoleView execute(UpdateRoleCommand c) {
         var old = roles.findById(RoleId.of(c.roleId())).orElseThrow(() -> new DomainException("Role not found"));
-        var ps = permissions.findAllByNames(c.permissions() == null ? Set.of() : c.permissions()).stream()
-                .collect(Collectors.toUnmodifiableSet());
-        return mapper.toRoleView(roles.save(new Role(old.id(), c.name() == null ? old.name() : c.name(),
+        var name = c.name() == null ? old.name() : c.name().trim().toUpperCase();
+        if (!name.equals(old.name()) && roles.findByName(name).isPresent())
+            throw new DomainException("Role already exists");
+        var requested = c.permissions() == null ? Set.<String>of() : Set.copyOf(c.permissions());
+        var ps = permissions.findAllByNames(requested).stream().collect(Collectors.toUnmodifiableSet());
+        if (ps.size() != requested.size())
+            throw new DomainException("One or more permissions not found");
+        return mapper.toRoleView(roles.save(new Role(old.id(), name,
                 c.description() == null ? old.description() : c.description(), ps, old.createdAt(), clock.now())));
     }
 }
