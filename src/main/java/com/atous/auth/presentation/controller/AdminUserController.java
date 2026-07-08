@@ -15,42 +15,38 @@ import java.util.UUID;
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminUserController {
     private final SearchUsersUseCase search;
-    private final UpdateUserStatusUseCase updateStatus; 
-    private final AssignRolesToUserUseCase assignRoles; 
+    private final UpdateUserStatusUseCase updateStatus;
+    private final AssignRolesToUserUseCase assignRoles;
     private final UserPresentationMapper mapper;
 
     public AdminUserController(
-            SearchUsersUseCase search, 
-            UpdateUserStatusUseCase updateStatus, 
-            AssignRolesToUserUseCase assignRoles, 
-            UserPresentationMapper mapper
-        ){
-            this.search=search;
-            this.updateStatus=updateStatus;
-            this.assignRoles=assignRoles;
-            this.mapper=mapper;
-        }
+            SearchUsersUseCase search,
+            UpdateUserStatusUseCase updateStatus,
+            AssignRolesToUserUseCase assignRoles,
+            UserPresentationMapper mapper) {
+        this.search = search;
+        this.updateStatus = updateStatus;
+        this.assignRoles = assignRoles;
+        this.mapper = mapper;
+    }
 
-        @GetMapping("/users")
-        public PageResponse<UserResponse> searchUsers(@Valid SearchUsersRequest r){
-            return mapper.toPageResponse(search.execute(new SearchUsersQuery(r.search(),r.enabled(),r.normalizedPage(),r.normalizedSize())));
-        }
+    @GetMapping("/users")
+    public PageResponse<UserResponse> searchUsers(@Valid SearchUsersRequest r) {
+        return mapper.toPageResponse(
+                search.execute(new SearchUsersQuery(r.search(), r.enabled(), r.normalizedPage(), r.normalizedSize())));
+    }
 
-        
-        @PatchMapping("/{userId}/status") 
-        public UserResponse updateStatus(
-            @PathVariable UUID userId, 
-            @Valid @RequestBody UpdateUserStatusRequest r
-        ){
-            return mapper.toResponse(updateStatus.execute(new UpdateUserStatusCommand(userId,r.enabled())));
-        }
+    @PatchMapping("/{userId}/status")
+    public UserResponse updateStatus(
+            @PathVariable UUID userId,
+            @Valid @RequestBody UpdateUserStatusRequest r) {
+        return mapper.toResponse(updateStatus.execute(new UpdateUserStatusCommand(userId, r.enabled())));
+    }
 
-
-        @PutMapping("/{userId}/roles")
-        public UserResponse assignRoles(
-            @PathVariable UUID userId, 
-            @Valid @RequestBody AssignRolesRequest r
-        ){
-            return mapper.toResponse(assignRoles.execute(new AssignRolesCommand(userId,r.roleIds())));
-        }
+    @PutMapping("/{userId}/roles")
+    public UserResponse assignRoles(
+            @PathVariable UUID userId,
+            @Valid @RequestBody AssignRolesRequest r) {
+        return mapper.toResponse(assignRoles.execute(new AssignRolesCommand(userId, r.roleIds())));
+    }
 }

@@ -1,3 +1,13 @@
 package com.atous.auth.application.dto.result;
+import java.time.Instant;
+import java.util.Set;
+import java.util.UUID;
 
-public record TokenValidationResult(boolean valid, java.util.UUID userId, String email, java.util.Set<String> roles, java.util.Set<String> permissions, java.time.Instant issuedAt, java.time.Instant expiresAt) {}
+public record TokenValidationResult(
+    boolean valid, 
+    UUID userId,
+    String email, 
+    Set<String> roles, 
+    Set<String> permissions, 
+    Instant issuedAt, 
+    Instant expiresAt) {}

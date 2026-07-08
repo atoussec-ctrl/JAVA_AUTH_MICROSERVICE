@@ -1,5 +1,48 @@
 package com.atous.auth.application.service;
 
-import com.atous.auth.application.dto.command.ForgotPasswordCommand; import com.atous.auth.application.dto.result.PasswordOperationResult; import com.atous.auth.application.port.in.ForgotPasswordUseCase; import com.atous.auth.application.port.out.*; import com.atous.auth.domain.model.PasswordResetToken; import com.atous.auth.domain.valueobject.Email; import java.time.Duration; import java.util.UUID;
+import java.time.Duration;
+import java.util.UUID;
 
-public final class ForgotPasswordService implements ForgotPasswordUseCase { private final UserRepositoryPort users; private final PasswordResetTokenRepositoryPort resetTokens; private final RefreshTokenGeneratorPort generator; private final TokenHashingPort hash; private final EmailSenderPort email; private final ClockProviderPort clock; public ForgotPasswordService(UserRepositoryPort users, PasswordResetTokenRepositoryPort resetTokens, RefreshTokenGeneratorPort generator, TokenHashingPort hash, EmailSenderPort email, ClockProviderPort clock){this.users=users;this.resetTokens=resetTokens;this.generator=generator;this.hash=hash;this.email=email;this.clock=clock;} public PasswordOperationResult execute(ForgotPasswordCommand c){var now=clock.now(); users.findByEmail(Email.of(c.email())).ifPresent(u->{var raw=generator.generate(); resetTokens.save(new PasswordResetToken(UUID.randomUUID(),u.id(),hash.hash(raw),false,now.plus(Duration.ofMinutes(30)),now)); email.sendPasswordResetEmail(u.email().value(), raw);}); return new PasswordOperationResult(true,"If the email exists, password reset instructions were sent",now);} }
+import com.atous.auth.application.dto.command.ForgotPasswordCommand;
+import com.atous.auth.application.dto.result.PasswordOperationResult;
+import com.atous.auth.application.port.in.ForgotPasswordUseCase;
+import com.atous.auth.application.port.out.ClockProviderPort;
+import com.atous.auth.application.port.out.EmailSenderPort;
+import com.atous.auth.application.port.out.PasswordResetTokenRepositoryPort;
+import com.atous.auth.application.port.out.RefreshTokenGeneratorPort;
+import com.atous.auth.application.port.out.TokenHashingPort;
+import com.atous.auth.application.port.out.UserRepositoryPort;
+import com.atous.auth.domain.model.PasswordResetToken;
+import com.atous.auth.domain.valueobject.Email;
+
+public final class ForgotPasswordService implements ForgotPasswordUseCase {
+    private final UserRepositoryPort users;
+    private final PasswordResetTokenRepositoryPort resetTokens;
+    private final RefreshTokenGeneratorPort generator;
+    private final TokenHashingPort hash;
+    private final EmailSenderPort email;
+    private final ClockProviderPort clock;
+
+    public ForgotPasswordService(UserRepositoryPort users, PasswordResetTokenRepositoryPort resetTokens,
+            RefreshTokenGeneratorPort generator, TokenHashingPort hash, EmailSenderPort email,
+            ClockProviderPort clock) {
+        this.users = users;
+        this.resetTokens = resetTokens;
+        this.generator = generator;
+        this.hash = hash;
+        this.email = email;
+        this.clock = clock;
+    }
+
+    @Override
+    public PasswordOperationResult execute(ForgotPasswordCommand c) {
+        var now = clock.now();
+        users.findByEmail(Email.of(c.email())).ifPresent(u -> {
+            var raw = generator.generate();
+            resetTokens.save(new PasswordResetToken(UUID.randomUUID(), u.id(), hash.hash(raw), false,
+                    now.plus(Duration.ofMinutes(30)), now));
+            email.sendPasswordResetEmail(u.email().value(), raw);
+        });
+        return new PasswordOperationResult(true, "If the email exists, password reset instructions were sent", now);
+    }
+}
