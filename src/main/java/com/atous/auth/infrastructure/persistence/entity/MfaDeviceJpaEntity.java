@@ -14,6 +14,9 @@ public class MfaDeviceJpaEntity {
     @Column(name="created_at", nullable=false) private Instant createdAt;
     @Column(name="verified_at") private Instant verifiedAt;
     protected MfaDeviceJpaEntity(){}
+    public MfaDeviceJpaEntity(UUID id, UUID userId, String secretHash, boolean enabled, Instant createdAt, Instant verifiedAt){
+        this.id=id; this.userId=userId; this.secretHash=secretHash; this.enabled=enabled; this.createdAt=createdAt; this.verifiedAt=verifiedAt;
+    }
     public UUID getId(){return id;} public void setId(UUID id){this.id=id;}
     public UUID getUserId(){return userId;} public void setUserId(UUID userId){this.userId=userId;}
     public String getSecretHash(){return secretHash;} public void setSecretHash(String secretHash){this.secretHash=secretHash;}
