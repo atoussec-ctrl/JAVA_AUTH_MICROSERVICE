@@ -23,7 +23,7 @@ public class JwtTokenProviderAdapter implements TokenProviderPort {
     }
     public TokenClaimsDto validate(String token){
         var jwt=decoder.decode(token);
-        return new TokenClaimsDto(jwt.getId(), UUID.fromString(jwt.getSubject()), jwt.getSubject(), jwt.getIssuer()==null?null:jwt.getIssuer().toString(), Set.copyOf(jwt.getAudience()), safe(jwt.getClaimAsStringList("scope")), safe(jwt.getClaimAsStringList("roles")), safe(jwt.getClaimAsStringList("permissions")), jwt.getIssuedAt(), jwt.getNotBefore(), jwt.getExpiresAt());
+        return new TokenClaimsDto(jwt.getId(), UUID.fromString(jwt.getSubject()), jwt.getSubject(), jwt.getClaimAsString("email"), jwt.getIssuer()==null?null:jwt.getIssuer().toString(), Set.copyOf(jwt.getAudience()), safe(jwt.getClaimAsStringList("scope")), safe(jwt.getClaimAsStringList("roles")), safe(jwt.getClaimAsStringList("permissions")), jwt.getIssuedAt(), jwt.getNotBefore(), jwt.getExpiresAt());
     }
     private Set<String> safe(List<String> v){return v==null?Set.of():Set.copyOf(v);}
 }
